@@ -263,4 +263,337 @@ echo "sua_chave_privada" | gpg --symmetric --armor > private_key.gpg
 
 ## 🚨 Solução de Problemas
 
-###
+### Problemas Comuns
+
+#### 1. Erro de conexão
+```bash
+# Verificar conectividade
+ping testnet-rpc.monad.xyz
+
+# Testar conexão do bot
+monad-bot --test-connection
+```
+
+#### 2. Problemas de instalação Python
+```bash
+# Ubuntu/Debian
+sudo apt install python3-dev python3-setuptools
+
+# CentOS/RHEL
+sudo yum install python3-devel gcc
+```
+
+#### 3. Erro de permissões
+```bash
+# Corrigir permissões
+chmod +x ~/monad_bot/monad_bot.py
+chmod +x ~/monad_bot/start_bot.sh
+```
+
+#### 4. Problemas de memória
+```bash
+# Verificar uso de memória
+free -h
+ps aux | grep python
+
+# Limitar uso de memória
+ulimit -v 524288  # 512MB
+```
+
+#### 5. Bot não encontra NFTs
+- Verificar se as coleções existem na testnet
+- Ajustar `max_price` para valor mais alto
+- Verificar se há listings disponíveis manualmente
+
+### Logs e Debugging
+
+```bash
+# Ver logs detalhados
+tail -f ~/monad_bot/logs/bot.log
+
+# Debug mode
+monad-bot --debug
+
+# Verificar configuração
+monad-bot --validate-config
+```
+
+## 📊 Monitoramento e Logs
+
+### Arquivos de log
+
+```bash
+# Log principal
+~/monad_bot/logs/bot.log
+
+# Log de transações
+~/monad_bot/logs/transactions.log
+
+# Log de erros
+~/monad_bot/logs/errors.log
+
+# Estatísticas
+~/monad_bot/stats/session_*.json
+```
+
+### Comandos de monitoramento
+
+```bash
+# Ver logs em tempo real
+tail -f ~/monad_bot/logs/bot.log
+
+# Filtrar apenas sucessos
+grep "SUCCESS" ~/monad_bot/logs/bot.log
+
+# Ver estatísticas do dia
+cat ~/monad_bot/stats/session_$(date +%Y%m%d)*.json
+```
+
+## ⚡ Otimização de Performance
+
+### Configurações recomendadas
+
+```json
+{
+  "min_delay": 1,
+  "max_delay": 3,
+  "max_concurrent_requests": 5,
+  "timeout": 30,
+  "retry_attempts": 3,
+  "batch_size": 10
+}
+```
+
+### Monitoramento de recursos
+
+```bash
+# CPU e memória
+htop
+
+# Uso de rede
+iftop
+
+# Processos Python
+ps aux | grep python | grep monad
+```
+
+## 🔄 Backup e Recuperação
+
+### Backup automático
+
+```bash
+# Criar script de backup
+cat > ~/monad_bot/backup.sh << 'EOF'
+#!/bin/bash
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="~/monad_bot_backup_$DATE"
+
+mkdir -p $BACKUP_DIR
+cp ~/monad_bot/monad_config.json $BACKUP_DIR/
+cp -r ~/monad_bot/stats/ $BACKUP_DIR/
+cp -r ~/monad_bot/logs/ $BACKUP_DIR/
+
+tar -czf "monad_bot_backup_$DATE.tar.gz" $BACKUP_DIR
+rm -rf $BACKUP_DIR
+
+echo "Backup criado: monad_bot_backup_$DATE.tar.gz"
+EOF
+
+chmod +x ~/monad_bot/backup.sh
+```
+
+### Restaurar backup
+
+```bash
+# Extrair backup
+tar -xzf monad_bot_backup_YYYYMMDD_HHMMSS.tar.gz
+
+# Restaurar configuração
+cp monad_bot_backup_*/monad_config.json ~/monad_bot/
+```
+
+## 🔧 Personalização Avançada
+
+### Webhooks e notificações
+
+```python
+# Adicionar ao arquivo monad_bot.py
+import requests
+
+def send_notification(message):
+    webhook_url = "https://discord.com/api/webhooks/seu_webhook"
+    data = {"content": f"🤖 Monad Bot: {message}"}
+    requests.post(webhook_url, json=data)
+
+# Usar nas compras bem-sucedidas
+send_notification(f"Compra realizada: {nft_name} por {price} MON")
+```
+
+### Filtros personalizados
+
+```python
+def custom_filter(listing):
+    # Exemplo: apenas NFTs com número par
+    if "Punk" in listing.name:
+        number = int(listing.name.split("#")[1])
+        return number % 2 == 0
+    return True
+```
+
+### Estratégias customizadas
+
+```python
+def custom_strategy(listings):
+    # Exemplo: priorizar por raridade
+    rare_listings = [l for l in listings if l.rarity == "Rare"]
+    if rare_listings:
+        return min(rare_listings, key=lambda x: x.price)
+    return min(listings, key=lambda x: x.price)
+```
+
+## 📱 Integração com APIs
+
+### Magic Eden API
+
+```python
+# Configurar headers da API
+headers = {
+    "User-Agent": "MonadBot/1.0",
+    "Accept": "application/json",
+    "X-API-Key": "sua_api_key"  # Se disponível
+}
+
+# Endpoints úteis
+endpoints = {
+    "collections": "/collections",
+    "listings": "/collections/{collection}/listings",
+    "stats": "/collections/{collection}/stats"
+}
+```
+
+### Integração com carteiras
+
+```python
+from web3 import Web3
+
+# Conectar à rede Monad
+w3 = Web3(Web3.HTTPProvider("https://testnet-rpc.monad.xyz"))
+
+# Verificar saldo
+balance = w3.eth.get_balance(wallet_address)
+balance_mon = w3.from_wei(balance, 'ether')
+```
+
+## 🎯 Casos de Uso
+
+### 1. Colecionador
+```bash
+# Foco em qualidade
+monad-bot --max-price 5.0 --collections monad-punks --strategy specific
+```
+
+### 2. Trader
+```bash
+# Volume alto, preço baixo
+monad-bot --max-price 0.5 --auto-buy --strategy floor
+```
+
+### 3. Investidor
+```bash
+# Seletivo com raridade
+monad-bot --max-price 10.0 --strategy specific --min-rarity rare
+```
+
+## 📈 Analytics e Relatórios
+
+### Script de relatório
+
+```bash
+cat > ~/monad_bot/report.py << 'EOF'
+#!/usr/bin/env python3
+import json
+import glob
+from datetime import datetime
+
+def generate_report():
+    stats_files = glob.glob("stats/session_*.json")
+    
+    total_purchases = 0
+    total_spent = 0
+    success_rate = 0
+    
+    for file in stats_files:
+        with open(file, 'r') as f:
+            data = json.load(f)
+            total_purchases += data.get('total_purchases', 0)
+            total_spent += data.get('total_spent', 0)
+    
+    print(f"📊 Relatório Geral")
+    print(f"Total de compras: {total_purchases}")
+    print(f"Total gasto: {total_spent:.3f} MON")
+    print(f"Média por NFT: {total_spent/total_purchases:.3f} MON" if total_purchases > 0 else "N/A")
+
+if __name__ == "__main__":
+    generate_report()
+EOF
+
+chmod +x ~/monad_bot/report.py
+```
+
+## 🚀 Atualizações
+
+### Verificar versão
+
+```bash
+monad-bot --version
+```
+
+### Atualizar bot
+
+```bash
+# Backup antes de atualizar
+~/monad_bot/backup.sh
+
+# Download nova versão
+curl -sSL https://raw.githubusercontent.com/seu-repo/monad-bot/main/monad_bot.py > ~/monad_bot/monad_bot.py
+
+# Verificar funcionamento
+monad-bot --test
+```
+
+## 📞 Suporte
+
+### Comunidade
+- **Discord**: [Link do Discord]
+- **Telegram**: [Link do Telegram]
+- **GitHub**: [Link do GitHub]
+
+### Reportar bugs
+1. Criar issue no GitHub
+2. Incluir logs relevantes
+3. Descrever passos para reproduzir
+
+### Contribuir
+1. Fork do repositório
+2. Criar branch para feature
+3. Submeter pull request
+
+## ⚖️ Disclaimer
+
+**AVISO IMPORTANTE:**
+
+- Este bot é apenas para fins educacionais e de teste
+- Use apenas na testnet do Monad
+- Os desenvolvedores não se responsabilizam por perdas
+- Trading de NFTs envolve riscos
+- Sempre faça sua própria pesquisa (DYOR)
+
+## 📄 Licença
+
+MIT License - Veja arquivo LICENSE para detalhes.
+
+---
+
+**🎉 Bot criado com ❤️ para a comunidade Monad**
+
+*Última atualização: $(date)*
