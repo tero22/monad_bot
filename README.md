@@ -6,7 +6,7 @@ Bot automatizado para comprar NFTs no Magic Eden Monad Testnet via terminal Linu
 
 ```bash
 # 1. Baixar e executar o script de instalação
-curl -sSL https://raw.githubusercontent.com/tero22/monad-bot/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/tero22/monad_bot/refs/heads/main/install.sh | bash
 
 # 2. Recarregar o shell
 source ~/.bashrc
