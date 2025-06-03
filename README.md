@@ -595,5 +595,6 @@ MIT License - Veja arquivo LICENSE para detalhes.
 ---
 
 **🎉 Bot criado com ❤️ para a comunidade Monad**
+Contribuição: 0xcAEaC8B4a6C587033763b5Fe64A18A3B5585c8Fd
 
 *Última atualização: $(date)*
